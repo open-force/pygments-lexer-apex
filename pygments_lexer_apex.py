@@ -10,7 +10,7 @@ from pygments.token import Text, Comment, Operator, Keyword, Name, String, \
 from pygments.util import shebang_matches
 from pygments import unistring as uni
 
-__all__ = ['JavaLexer']
+__all__ = ['ApexLexer']
 
 
 class ApexLexer(RegexLexer):
@@ -18,38 +18,43 @@ class ApexLexer(RegexLexer):
 
     name = 'Apex'
     aliases = ['apex']
-    filenames = ['*.cls']
+    filenames = ['*.apxc', '*.apxt', '*.cls']
 
     flags = re.MULTILINE | re.DOTALL | re.UNICODE
 
     tokens = {
         'root': [
+            # General text
             (r'[^\S\n]+', Text),
+            # Comments
             (r'//.*?\n', Comment.Single),
             (r'/\*.*?\*/', Comment.Multiline),
-            # keywords: go before method names to avoid lexing "throw new XYZ"
-            # as a method signature
-            (r'(break|case|catch|continue|do|else|finally|for|if|instanceof|new|return|switch|this|throw|try|while)\b',
+            # Keywords: go before method names to avoid lexing "throw new XYZ" as a method signature
+            (r'(?i)(break|case|catch|continue|do|else|finally|for|if|instanceof|new|return|switch|this|throw|try|'
+             r'while)\b',
              Keyword),
             # DML keywords
-            (r'(delete|insert|merge|undelete|update|upsert)\b', Keyword),
-            # method names
+            (r'(?i)(delete|insert|merge|undelete|update|upsert)\b', Keyword),
+            # Method names
             (r'((?:(?:[^\W\d]|\$)[\w.\[\]$<>]*\s+)+?)'  # return arguments
              r'((?:[^\W\d]|\$)[\w$]*)'                  # method name
              r'(\s*)(\()',                              # signature start
              bygroups(using(this), Name.Function, Text, Operator)),
+            # Annotations
             (r'@[^\W\d][\w.]*', Name.Decorator),
             # Apex class modifiers
-            (r'(abstract|const|enum|extends|final|global|implements|override|private|protected|public|static|super|'
-             r'throws|with sharing|without sharing)\b', Keyword.Declaration),
-            (r'(boolean|byte|char|double|float|int|long|short|void)\b',
+            (r'(?i)(abstract|const|enum|extends|final|global|implements|on|override|private|protected|public|static|'
+             r'super|throws|with sharing|without sharing)\b', Keyword.Declaration),
+            (r'(?i)(blob|boolean|date|datetime|decimal|double|float|id|integer|long|object|time)\b',
              Keyword.Type),
+            # Constants
             (r'(?i)(true|false|null)\b', Keyword.Constant),
-            (r'(class|interface)(\s+)', bygroups(Keyword.Declaration, Text),
+            (r'(?i)(class|interface|trigger)(\s+)', bygroups(Keyword.Declaration, Text),
              'class'),
             (r"'(\\\\|\\'|[^'])*'", String),
             (r"'\\.'|'[^\\]'|'\\u[0-9a-fA-F]{4}'", String.Char),
-            (r'(\.)((?:[^\W\d]|\$)[\w$]*)', bygroups(Operator, Name.Attribute)),
+            (r'(\.)((?:[^\W\d]|\$)[\w$]*)',
+             bygroups(Operator, Name.Attribute)),
             (r'^\s*([^\W\d]|\$)[\w$]*:', Name.Label),
             (r'([^\W\d]|\$)[\w$]*', Name),
             (r'([0-9][0-9_]*\.([0-9][0-9_]*)?|'
