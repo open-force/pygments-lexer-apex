@@ -11,7 +11,10 @@ setup(
     keywords = 'syntax highlighting',
     platforms = 'any',
     py_modules=['pygments_lexer_apex'],
-    entry_points='[pygments.lexers]\napexlexer = pygments_lexer_apex:ApexLexer',
+    entry_points="""
+    [pygments.lexers]
+    apexlexer = pygments_lexer_apex:ApexLexer
+    """,
     classifiers=[
       'License :: OSI Approved :: MIT License',
       'Intended Audience :: Developers',
